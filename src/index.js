@@ -1,114 +1,119 @@
-const resetBoard = () => {
+class Board {
+  constructor(){
+    this.deck = new Array( 
+        [null, null, null],
+        [null, null, null],
+        [null, null, null]
+      );
+  }
+}
 
+class Game {
+  constructor(){
+    this.board = new Board().deck;
+    this.winner = null;
+    this.turn = 'x';
 
-  return new Array( 
-    [null, null, null],
-    [null, null, null],
-    [null, null, null]
-    );
-};
-
-
-let board = resetBoard();
-
-let turn = 'x';
-
-
-const play = (row, col) => {
-  board[row][col] = turn;
-  console.log(displayBoard(board));
-  // check if there's a winner
-  if(
-    checkForVerticalWinner(turn, board) || 
-    checkForHorizontalWinner(turn, board) || 
-    checkForDiagonalWinner(turn, board)
-  ){
-    announceWinner(turn);
-    resetBoard(board);
-    return;
+    this.displayBoard();
+    this.displayTurn();
   }
 
-  // if not continue playing
-  if(turn === 'x'){
-    turn = 'o'
-  } else if (turn === 'o') {
-    turn = 'x';
-  }
-
-  displayTurn();
-};
-
-const displayBoard = (board) => {
-  return `
-    ${board[0][0]} | ${board[0][1]} | ${board[0][2]}
-    -------------------
-    ${board[1][0]} | ${board[1][1]} | ${board[1][2]}
-    -------------------
-    ${board[2][0]} | ${board[2][1]} | ${board[2][2]}
-    `;
-};
-
-const checkForHorizontalWinner = (player, board) => {
-  let playerCounter = 0;
-  for (let row = 0; row < board.length; row++) {
-    for (let col = 0; col < board.length; col++) {
-      // if player exists there then increment the counter
-      if (board[row][col] === player) {
-        playerCounter++;
+  checkForVerticalWinner (player) {
+    let playerCounter = 0;
+    for (let col = 0; col < this.board.length; col++) {
+      for (let row = 0; row < this.board.length; row++) {
+        // if player exists there then increment the counter
+        if (this.board[row][col] === player) {
+          playerCounter++;
+        }
+        // if the counter reaches 3 it means this player won
+        if (playerCounter === 3){
+          return true;
+        }
       }
-      // if the counter reaches 3 it means this player won
-      if (playerCounter === 3){
-        return true;
-      }
+      // reset cause didnt get 3 at a time
+      playerCounter = 0;
     }
-    // reset cause didnt get 3 at a time    
-    playerCounter = 0;
-  }
+    return false; 
+  };
 
-  return false; 
-};
-
-
-const checkForVerticalWinner = (player, board) => {
-  let playerCounter = 0;
-  for (let col = 0; col < board.length; col++) {
-    for (let row = 0; row < board.length; row++) {
-      // if player exists there then increment the counter
-      if (board[row][col] === player) {
-        playerCounter++;
+  checkForHorizontalWinner (player) {
+    let playerCounter = 0;
+    for (let row = 0; row < this.board.length; row++) {
+      for (let col = 0; col < this.board.length; col++) {
+        // if player exists there then increment the counter
+        if (this.board[row][col] === player) {
+          playerCounter++;
+        }
+        // if the counter reaches 3 it means this player won
+        if (playerCounter === 3){
+          return true;
+        }
       }
-      // if the counter reaches 3 it means this player won
-      if (playerCounter === 3){
-        return true;
-      }
+      // reset cause didnt get 3 at a time    
+      playerCounter = 0;
     }
-    // reset cause didnt get 3 at a time
-    playerCounter = 0;
+  
+    return false; 
+  };
+  
+  
+  checkForDiagonalWinner (player) {
+    if (this.board[0][0] === player && this.board[1][1] === player && this.board[2][2] === player) {
+      return true;
+    }
+    if (this.board[0][2] === player && this.board[1][1] === player && this.board[2][0] === player) {
+      return true;
+    }
+    return false; 
+  };
+  
+  switchTurn() {
+    if(this.turn === 'x'){
+      this.turn = 'o'
+    } else if (this.turn === 'o') {
+      this.turn = 'x';
+    }
   }
-  return false; 
-};
-
-const checkForDiagonalWinner = (player, board) => {
-  if (board[0][0] === player && board[1][1] === player && board[2][2] === player) {
-    return true;
+  
+  play(row, col) {
+    this.board[row][col] = this.turn;
+  
+    // check if there's a winner
+    if(
+      this.checkForVerticalWinner(this.turn, this.board) || 
+      this.checkForHorizontalWinner(this.turn, this.board) || 
+      this.checkForDiagonalWinner(this.turn, this.board)
+    ){
+      this.announceWinner();
+      return;
+    }
+  
+    // if not continue playing
+    this.switchTurn();
+    this.displayBoard();
+    this.displayTurn();
   }
-  if (board[0][2] === player && board[1][1] === player && board[2][0] === player) {
-    return true;
-  }
-  return false; 
+
+  announceWinner() {
+    console.log(`${this.turn} is a winner!`);
+  };
+  
+  displayTurn() {
+    console.log(`${this.turn} turn's now!`);
+  };
+
+
+  displayBoard () {
+    console.log( `
+      ${this.board[0][0]} | ${this.board[0][1]} | ${this.board[0][2]}
+      -------------------
+      ${this.board[1][0]} | ${this.board[1][1]} | ${this.board[1][2]}
+      -------------------
+      ${this.board[2][0]} | ${this.board[2][1]} | ${this.board[2][2]}
+      `);
+  };
+
 };
 
-const announceWinner = (player) => {
-  console.log(`${player} is a winner!`);
-};
-
-const displayTurn = () => {
-  console.log(`${turn} turn's now!`);
-};
-
-const runGame = () => {
-  console.log(displayBoard(board));
-  displayTurn();
-};
-
-runGame();
+// const myGame = new Game();
